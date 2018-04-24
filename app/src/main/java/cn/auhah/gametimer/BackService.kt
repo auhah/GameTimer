@@ -1,6 +1,10 @@
 package cn.auhah.gametimer
 
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -13,7 +17,6 @@ import android.view.WindowManager
 import ezy.assist.compat.SettingsCompat
 import org.jetbrains.anko.notificationManager
 import org.jetbrains.anko.windowManager
-
 
 class BackService : Service() {
   override fun onBind(intent: Intent): IBinder? {
@@ -43,7 +46,10 @@ class BackService : Service() {
       handleStart(context, 4)
     }
 
-    private fun handleStart(context: Context, action: Int) {
+    private fun handleStart(
+      context: Context,
+      action: Int
+    ) {
       val intent = Intent(context, BackService::class.java).putExtra("a", action)
       with(context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -54,7 +60,11 @@ class BackService : Service() {
     }
   }
 
-  override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+  override fun onStartCommand(
+    intent: Intent?,
+    flags: Int,
+    startId: Int
+  ): Int {
     val canDrawOverlays = SettingsCompat.canDrawOverlays(this)
     if (canDrawOverlays) {
       val intExtra = intent?.getIntExtra("a", 0)
@@ -106,15 +116,18 @@ class BackService : Service() {
       val i = Intent(this, MainActivity::class.java)
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel("ccc", "游戏小工具",
-            NotificationManager.IMPORTANCE_DEFAULT)
+        val channel = NotificationChannel(
+            "ccc", "游戏小工具",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
         channel.description = "王者荣耀兵线计时器"
 
         notificationManager.createNotificationChannel(channel)
 
         val builder = Notification.Builder(this, "ccc")
             .setContentIntent(
-                PendingIntent.getActivity(this, 0, i, 0))
+                PendingIntent.getActivity(this, 0, i, 0)
+            )
             .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher))
             .setSmallIcon(R.mipmap.ic_launcher) // 设置状态栏内的小图标
             .setContentTitle("计时器开启") // 设置下拉列表里的标题
@@ -127,7 +140,8 @@ class BackService : Service() {
       } else {
         val builder = NotificationCompat.Builder(this)
             .setContentIntent(
-                PendingIntent.getActivity(this, 0, i, 0))
+                PendingIntent.getActivity(this, 0, i, 0)
+            )
             .setContentTitle("计时器开启") // 设置下拉列表里的标题
             .setContentText("如果要关闭，点击通知以后在打开的页面点退出") // 设置上下文内容
             .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher))

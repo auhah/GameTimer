@@ -18,7 +18,10 @@ object AppUtils {
     }
   }
 
-  private fun isAppInstalled(context: Context, packageName: String): Boolean {
+  private fun isAppInstalled(
+    context: Context,
+    packageName: String
+  ): Boolean {
     return try {
       context.packageManager.getPackageInfo(packageName, 0)
       true
@@ -28,7 +31,10 @@ object AppUtils {
 
   }
 
-  private fun goToMarket(context: Context, packageName: String) {
+  private fun goToMarket(
+    context: Context,
+    packageName: String
+  ) {
     val uri = Uri.parse("market://details?id=$packageName")
     val goToMarket = Intent(Intent.ACTION_VIEW, uri)
     try {

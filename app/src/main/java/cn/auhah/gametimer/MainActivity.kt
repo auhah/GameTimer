@@ -4,13 +4,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import ezy.assist.compat.SettingsCompat
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.check
+import kotlinx.android.synthetic.main.activity_main.exit
+import kotlinx.android.synthetic.main.activity_main.setting
+import kotlinx.android.synthetic.main.activity_main.start
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.toast
 
-
 class MainActivity : AppCompatActivity() {
-
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

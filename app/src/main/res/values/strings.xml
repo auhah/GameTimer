@@ -113,4 +113,9 @@
         \n3. 设置页面可以拖动修改提示的位置
         \n4. 如果没有显示倒计时请点击检测权限允许权限
         \n5. 退出请点击退出按钮</string>
+    <string name="key_vibrate_enable">vibrate_enable</string>
+    <string name="key_vibrate_time">vibrate_time</string>
+    <string name="key_vibrate_duration">vibrate_duration</string>
+    <string name="value_vibrate_duration">300</string>
+    <string name="value_vibrate_time">5</string>
 </resources>

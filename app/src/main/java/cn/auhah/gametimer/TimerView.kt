@@ -16,13 +16,18 @@ import org.jetbrains.anko.textColor
 import org.jetbrains.anko.vibrator
 import org.jetbrains.anko.windowManager
 
-
 class TimerView : TextView {
   var time: Long = 0
   var isShort: Boolean = true
   var isEnableMove: Boolean = false
 
-  val timer = object : CountDownTimer(33250, 1000) {
+  companion object {
+    const val DURATION = 33250L
+    const val DIFF_DURATION = 6750L
+    const val COUNT_DOWN_INTERVAL = 1000L
+  }
+
+  val timer = object : CountDownTimer(DURATION, COUNT_DOWN_INTERVAL) {
     override fun onTick(millisUntilFinished: Long) {
       isShort = false
       time = millisUntilFinished
@@ -39,7 +44,10 @@ class TimerView : TextView {
     init()
   }
 
-  constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+  constructor(
+    context: Context,
+    attrs: AttributeSet?
+  ) : super(context, attrs) {
     init()
   }
 
@@ -51,16 +59,15 @@ class TimerView : TextView {
     onClick {
       if (isShort) {
         shortTimer?.cancel()
-        isShort = false
         timer.start()
       } else {
         timer.cancel()
-        if (time < 6750) {
-          time += 33250
+        if (time < DIFF_DURATION) {
+          time += DURATION
         }
-        time -= 6750
+        time -= DIFF_DURATION
         shortTimer?.cancel()
-        shortTimer = object : CountDownTimer(time, 1000) {
+        shortTimer = object : CountDownTimer(time, COUNT_DOWN_INTERVAL) {
           override fun onTick(millisUntilFinished: Long) {
             time = millisUntilFinished
             showText()
@@ -70,8 +77,8 @@ class TimerView : TextView {
             timer.start()
           }
         }.start()
-        isShort = true
       }
+      isShort = !isShort
     }
 
     onLongClick {
@@ -119,7 +126,8 @@ class TimerView : TextView {
         y = (mRawY - mStartY).toInt()
         // 使参数生效
         context.windowManager.updateViewLayout(this@TimerView, this)
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit()
             .putInt("x", x)
             .putInt("y", y)
             .apply()
@@ -131,22 +139,29 @@ class TimerView : TextView {
   private var vibrateDuration: Long = 300
   fun initSetting() {
     with(PreferenceManager.getDefaultSharedPreferences(context)) {
-      vibrateEnable = getBoolean("vibrate_enable", true)
-      vibrateTime = getString("vibrate_time", "5").toInt()
-      vibrateDuration = getString("vibrate_duration", "300").toLong()
+      vibrateEnable = getBoolean(context.getString(R.string.key_vibrate_enable), true)
+      vibrateTime = getString(
+          context.getString(R.string.key_vibrate_time),
+          context.getString(R.string.value_vibrate_time)
+      ).toInt()
+      vibrateDuration = getString(
+          context.getString(R.string.key_vibrate_duration),
+          context.getString(R.string.value_vibrate_duration)
+      ).toLong()
     }
   }
 
   fun applyLocation(lp: WindowManager.LayoutParams) {
-    PreferenceManager.getDefaultSharedPreferences(context).let {
-      lp.x = it.getInt("x", 0)
-      lp.y = it.getInt("y", 0)
-    }
+    PreferenceManager.getDefaultSharedPreferences(context)
+        .let {
+          lp.x = it.getInt("x", 0)
+          lp.y = it.getInt("y", 0)
+        }
   }
 
-
   private fun showText() {
-    val t = Math.round(time / 1000.00).toInt()
+    val t = Math.round(time / 1000.00)
+        .toInt()
     text = "$t 秒"
     if (vibrateEnable and (t == vibrateTime)) {
       context.vibrator.vibrate(vibrateDuration)

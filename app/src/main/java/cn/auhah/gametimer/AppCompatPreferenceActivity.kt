@@ -47,11 +47,17 @@ abstract class AppCompatPreferenceActivity : PreferenceActivity() {
     delegate.setContentView(view)
   }
 
-  override fun setContentView(view: View, params: ViewGroup.LayoutParams) {
+  override fun setContentView(
+    view: View,
+    params: ViewGroup.LayoutParams
+  ) {
     delegate.setContentView(view, params)
   }
 
-  override fun addContentView(view: View, params: ViewGroup.LayoutParams) {
+  override fun addContentView(
+    view: View,
+    params: ViewGroup.LayoutParams
+  ) {
     delegate.addContentView(view, params)
   }
 
@@ -60,7 +66,10 @@ abstract class AppCompatPreferenceActivity : PreferenceActivity() {
     delegate.onPostResume()
   }
 
-  override fun onTitleChanged(title: CharSequence, color: Int) {
+  override fun onTitleChanged(
+    title: CharSequence,
+    color: Int
+  ) {
     super.onTitleChanged(title, color)
     delegate.setTitle(title)
   }
