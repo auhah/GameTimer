@@ -9,9 +9,12 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.WindowManager
 import android.widget.TextView
-import org.jetbrains.anko.*
+import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.sdk25.coroutines.onClick
 import org.jetbrains.anko.sdk25.coroutines.onLongClick
+import org.jetbrains.anko.textColor
+import org.jetbrains.anko.vibrator
+import org.jetbrains.anko.windowManager
 
 
 class TimerView : TextView {
@@ -33,14 +36,14 @@ class TimerView : TextView {
   private var shortTimer: CountDownTimer? = null
 
   constructor(context: Context) : super(context) {
-    init(context)
+    init()
   }
 
   constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-    init(context)
+    init()
   }
 
-  private fun init(context: Context) {
+  private fun init() {
     initSetting()
     textColor = Color.RED
     backgroundColor = Color.TRANSPARENT
@@ -109,30 +112,29 @@ class TimerView : TextView {
   }
 
   private fun updateWindowPosition() {
-    if (layoutParams !is WindowManager.LayoutParams) return
-    // 更新坐标
-    val layoutParams = layoutParams as WindowManager.LayoutParams
-    layoutParams.x = (mRawX - mStartX).toInt()
-    layoutParams.y = (mRawY - mStartY).toInt()
-
-    // 使参数生效
-    context.windowManager.updateViewLayout(this, layoutParams)
-
-    PreferenceManager.getDefaultSharedPreferences(context).edit()
-        .putInt("x", layoutParams.x)
-        .putInt("y", layoutParams.y)
-        .apply()
+    if (layoutParams is WindowManager.LayoutParams)
+      with(layoutParams as WindowManager.LayoutParams) {
+        // 更新坐标
+        x = (mRawX - mStartX).toInt()
+        y = (mRawY - mStartY).toInt()
+        // 使参数生效
+        context.windowManager.updateViewLayout(this@TimerView, this)
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+            .putInt("x", x)
+            .putInt("y", y)
+            .apply()
+      }
   }
 
   private var vibrateEnable: Boolean = true
   private var vibrateTime: Int = 5
   private var vibrateDuration: Long = 300
   fun initSetting() {
-    val sp = PreferenceManager.getDefaultSharedPreferences(context)
-    vibrateEnable = sp.getBoolean("vibrate_enable", true)
-    vibrateTime = sp.getString("vibrate_time", "5").toInt()
-    vibrateDuration = sp.getString("vibrate_duration", "300").toLong()
-
+    with(PreferenceManager.getDefaultSharedPreferences(context)) {
+      vibrateEnable = getBoolean("vibrate_enable", true)
+      vibrateTime = getString("vibrate_time", "5").toInt()
+      vibrateDuration = getString("vibrate_duration", "300").toLong()
+    }
   }
 
   fun applyLocation(lp: WindowManager.LayoutParams) {
@@ -157,10 +159,10 @@ class TimerView : TextView {
 
   override fun onConfigurationChanged(newConfig: Configuration?) {
     super.onConfigurationChanged(newConfig)
-    if (newConfig?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      context.toast("横屏")
-    } else {
-      context.toast("竖屏")
-    }
+//    if (newConfig?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//      context.toast("横屏")
+//    } else {
+//      context.toast("竖屏")
+//    }
   }
 }

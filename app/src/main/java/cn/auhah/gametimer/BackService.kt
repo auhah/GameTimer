@@ -24,73 +24,64 @@ class BackService : Service() {
 
   companion object {
     fun start(context: Context) {
-      val intent = Intent(context, BackService::class.java)
-      handleStart(context, intent)
+      handleStart(context, 0)
     }
 
     fun enableMove(context: Context) {
-      val intent = Intent(context, BackService::class.java)
-      intent.putExtra("a", 1)
-      handleStart(context, intent)
+      handleStart(context, 1)
     }
 
     fun disableMove(context: Context) {
-      val intent = Intent(context, BackService::class.java)
-      intent.putExtra("a", 2)
-      handleStart(context, intent)
+      handleStart(context, 2)
     }
 
     fun exit(context: Context) {
-      val intent = Intent(context, BackService::class.java)
-      intent.putExtra("a", 3)
-      handleStart(context, intent)
+      handleStart(context, 3)
     }
 
     fun refreshSetting(context: Context) {
-      val intent = Intent(context, BackService::class.java)
-      intent.putExtra("a", 4)
-      handleStart(context, intent)
+      handleStart(context, 4)
     }
 
-    private fun handleStart(context: Context, intent: Intent) {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        context.startForegroundService(intent)
-      } else {
-        context.startService(intent)
+    private fun handleStart(context: Context, action: Int) {
+      val intent = Intent(context, BackService::class.java).putExtra("a", action)
+      with(context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+          startForegroundService(intent)
+        else
+          startService(intent)
       }
-
     }
   }
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     val canDrawOverlays = SettingsCompat.canDrawOverlays(this)
     if (canDrawOverlays) {
-      val params = WindowManager.LayoutParams()
       val intExtra = intent?.getIntExtra("a", 0)
       when (intExtra) {
         0 -> {
-
-          if (timerView != null) {
-            timerView!!.clearTimer()
-            windowManager.removeView(timerView)
+          timerView?.let {
+            it.clearTimer()
+            windowManager.removeView(it)
           }
-          timerView = TimerView(this)
-          params.width = WindowManager.LayoutParams.WRAP_CONTENT
-          params.height = WindowManager.LayoutParams.WRAP_CONTENT
-          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-          } else {
-            params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-          }
-
-          // 系统提示window
-          params.format = PixelFormat.TRANSLUCENT// 支持透明
-          //params.format = PixelFormat.RGBA_8888;
-          params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE// 焦点
-          params.windowAnimations = 0
-          params.gravity = Gravity.TOP or Gravity.START
-          timerView!!.applyLocation(params)
-          windowManager.addView(timerView, params)
+          windowManager.addView(TimerView(this).apply {
+            timerView = this
+          }, WindowManager.LayoutParams().apply {
+            width = WindowManager.LayoutParams.WRAP_CONTENT
+            height = WindowManager.LayoutParams.WRAP_CONTENT
+            type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+              WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            } else {
+              WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+            }
+            // 系统提示window
+            format = PixelFormat.TRANSLUCENT// 支持透明
+            //params.format = PixelFormat.RGBA_8888;
+            this.flags = this.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE// 焦点
+            windowAnimations = 0
+            gravity = Gravity.TOP or Gravity.START
+            timerView!!.applyLocation(this)
+          })
 
         }
         1 -> {
@@ -100,9 +91,9 @@ class BackService : Service() {
           timerView?.isEnableMove = false
         }
         3 -> {
-          if (timerView != null) {
-            timerView!!.clearTimer()
-            windowManager.removeView(timerView)
+          timerView?.let {
+            it.clearTimer()
+            windowManager.removeView(it)
           }
           stopForeground(true)
           stopSelf()
@@ -154,7 +145,9 @@ class BackService : Service() {
   }
 
   override fun onDestroy() {
-    if (timerView?.parent != null) windowManager.removeView(timerView)
+    timerView?.let {
+      if (it.parent != null) windowManager.removeView(it)
+    }
     super.onDestroy()
   }
 }
