@@ -15,8 +15,11 @@ class MainActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
-    if (SettingsCompat.canDrawOverlays(this))
+    if (SettingsCompat.canDrawOverlays(this)) {
       BackService.start(this)
+    } else {
+      toast("没有悬浮窗权限，无法启动计时器\n请点击${check.text}按钮获取权限")
+    }
 
     start.onClick {
       AppUtils.launchAPP(this@MainActivity)

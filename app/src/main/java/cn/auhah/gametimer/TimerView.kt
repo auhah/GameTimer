@@ -138,9 +138,10 @@ class TimerView : TextView {
   }
 
   fun applyLocation(lp: WindowManager.LayoutParams) {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    lp.x = sharedPreferences.getInt("x", 0)
-    lp.y = sharedPreferences.getInt("y", 0)
+    PreferenceManager.getDefaultSharedPreferences(context).let {
+      lp.x = it.getInt("x", 0)
+      lp.y = it.getInt("y", 0)
+    }
   }
 
 
