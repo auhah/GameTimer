@@ -14,7 +14,7 @@ import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.view.Gravity
 import android.view.WindowManager
-import ezy.assist.compat.SettingsCompat
+import cn.auhah.gametimer.permissions.SettingsCompat
 import org.jetbrains.anko.notificationManager
 import org.jetbrains.anko.windowManager
 

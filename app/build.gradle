@@ -25,7 +25,7 @@ android {
 
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
   implementation 'com.android.support:appcompat-v7:27.1.1'
   implementation 'com.android.support:support-v4:27.1.1'
   implementation 'com.android.support:support-vector-drawable:27.1.1'
@@ -49,7 +49,6 @@ dependencies {
   compile "org.jetbrains.anko:anko-sqlite:$anko_version"
   compile 'com.tencent.bugly:crashreport:latest.release'
   //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如2.1.9
-  compile 'com.github.czy1121:settingscompat:1.1.4'
 }
 kotlin {
   experimental {
