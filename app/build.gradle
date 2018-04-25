@@ -10,8 +10,8 @@ android {
     applicationId "cn.auhah.gametimer"
     minSdkVersion 19
     targetSdkVersion 27
-    versionCode 5
-    versionName "1.3"
+    versionCode 6
+    versionName "1.4"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     vectorDrawables.useSupportLibrary = true
   }
@@ -19,6 +19,17 @@ android {
     release {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+      applicationVariants.all { variant ->
+        //这个修改输出的APK路径
+        if (variant.buildType.name != "debug") {//防止AS无法安装debug包(apk)
+          variant.getPackageApplication().outputDirectory = new File(variant.getPackageApplication().outputDirectory ,variant.versionName)
+        }
+        variant.getPackageApplication().outputScope.apkDatas.forEach { apkData ->
+          //这个修改输出APK的文件名
+          apkData.outputFileName = "GameTimer-" + variant.versionName + ".apk"
+        }
+      }
     }
   }
 }
