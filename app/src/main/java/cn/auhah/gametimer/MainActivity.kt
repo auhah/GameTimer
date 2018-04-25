@@ -1,7 +1,9 @@
 package cn.auhah.gametimer
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
 import ezy.assist.compat.SettingsCompat
 import kotlinx.android.synthetic.main.activity_main.check
@@ -42,9 +44,18 @@ class MainActivity : AppCompatActivity() {
 
   private fun askForPermission() {
     if (!SettingsCompat.canDrawOverlays(this)) {
-      toast("当前无权限，请授权！")
-      isRequestingPermission = true
-      SettingsCompat.manageDrawOverlays(this)
+      try {
+        SettingsCompat.manageDrawOverlays(this)
+        toast("当前无权限，请授权！")
+        isRequestingPermission = true
+      } catch (e: ActivityNotFoundException) {
+        toast("当前 ROM 无法自动打开权限页面，请手动允许显示在顶部的权限。")
+        val intent = Intent(Settings.ACTION_SETTINGS)
+        if (intent.resolveActivity(packageManager) != null) {
+          startActivity(intent)
+          isRequestingPermission = true
+        }
+      }
     } else {
       toast("当前有权限")
       BackService.start(this)
