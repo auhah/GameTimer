@@ -52,7 +52,7 @@ class BackService : Service() {
     ) {
       val intent = Intent(context, BackService::class.java).putExtra("a", action)
       with(context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (action == 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
           startForegroundService(intent)
         else
           startService(intent)
@@ -93,6 +93,46 @@ class BackService : Service() {
             timerView!!.applyLocation(this)
           })
 
+          val i = Intent(this, MainActivity::class.java)
+
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "ccc", "游戏小工具",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            channel.description = "王者荣耀兵线计时器"
+
+            notificationManager.createNotificationChannel(channel)
+
+            val builder = Notification.Builder(this, "ccc")
+                .setContentIntent(
+                    PendingIntent.getActivity(this, 0, i, 0)
+                )
+                .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher))
+                .setSmallIcon(R.mipmap.ic_launcher) // 设置状态栏内的小图标
+                .setContentTitle("计时器开启") // 设置下拉列表里的标题
+                .setContentText("如果要关闭，点击通知以后在打开的页面点退出") // 设置上下文内容
+                .setAutoCancel(true)
+
+            val notification = builder.build()
+            startForeground(1, notification)
+
+          } else {
+            val builder = NotificationCompat.Builder(this)
+                .setContentIntent(
+                    PendingIntent.getActivity(this, 0, i, 0)
+                )
+                .setContentTitle("计时器开启") // 设置下拉列表里的标题
+                .setContentText("如果要关闭，点击通知以后在打开的页面点退出") // 设置上下文内容
+                .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher))
+                .setSmallIcon(R.mipmap.ic_launcher) // 设置状态栏内的小图标
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+
+            val notification = builder.build()
+
+            startForeground(1, notification)
+          }
         }
         1 -> {
           timerView?.isEnableMove = true
@@ -111,47 +151,6 @@ class BackService : Service() {
         4 -> {
           timerView?.initSetting()
         }
-      }
-
-      val i = Intent(this, MainActivity::class.java)
-
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(
-            "ccc", "游戏小工具",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        channel.description = "王者荣耀兵线计时器"
-
-        notificationManager.createNotificationChannel(channel)
-
-        val builder = Notification.Builder(this, "ccc")
-            .setContentIntent(
-                PendingIntent.getActivity(this, 0, i, 0)
-            )
-            .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher))
-            .setSmallIcon(R.mipmap.ic_launcher) // 设置状态栏内的小图标
-            .setContentTitle("计时器开启") // 设置下拉列表里的标题
-            .setContentText("如果要关闭，点击通知以后在打开的页面点退出") // 设置上下文内容
-            .setAutoCancel(true)
-
-        val notification = builder.build()
-        startForeground(1, notification)
-
-      } else {
-        val builder = NotificationCompat.Builder(this)
-            .setContentIntent(
-                PendingIntent.getActivity(this, 0, i, 0)
-            )
-            .setContentTitle("计时器开启") // 设置下拉列表里的标题
-            .setContentText("如果要关闭，点击通知以后在打开的页面点退出") // 设置上下文内容
-            .setLargeIcon(BitmapFactory.decodeResource(this.resources, R.mipmap.ic_launcher))
-            .setSmallIcon(R.mipmap.ic_launcher) // 设置状态栏内的小图标
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-
-        val notification = builder.build()
-
-        startForeground(1, notification)
       }
     }
 
