@@ -58,6 +58,7 @@ class BackService : Service() {
           startService(intent)
       }
     }
+    var isShown = false
   }
 
   override fun onStartCommand(
@@ -133,6 +134,7 @@ class BackService : Service() {
 
             startForeground(1, notification)
           }
+          isShown = true
         }
         1 -> {
           timerView?.isEnableMove = true
@@ -145,6 +147,7 @@ class BackService : Service() {
             it.clearTimer()
             windowManager.removeView(it)
           }
+          isShown = false
           stopForeground(true)
           stopSelf()
         }

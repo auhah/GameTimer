@@ -10,8 +10,8 @@ android {
     applicationId "cn.auhah.gametimer"
     minSdkVersion 19
     targetSdkVersion 27
-    versionCode 7
-    versionName "1.5"
+    versionCode 8
+    versionName "1.6"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     vectorDrawables.useSupportLibrary = true
   }
