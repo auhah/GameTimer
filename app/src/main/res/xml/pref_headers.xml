@@ -11,9 +11,6 @@
         android:fragment="cn.auhah.gametimer.SettingsActivity$NotificationPreferenceFragment"
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="@string/pref_header_notifications"/>
-
-    <header
-        />
     <!--<header-->
         <!--android:fragment="cn.auhah.gametimer.SettingsActivity$LocationPreferenceFragment"-->
         <!--android:icon="@drawable/ic_sync_black_24dp"-->
