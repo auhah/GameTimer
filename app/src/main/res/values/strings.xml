@@ -109,7 +109,7 @@
   <string name="pref_title_vibrate">振动</string>
   <string name="desc">0. 游戏时间10秒的时候点击一下时间
         \n1. 点击重置计时
-        \n2. 再次点击计时-6.75秒，在对面拿龙后点击。（拿龙后第一波龙正常出，之后3波兵每波都会提前2.25秒，共提前6.75秒）
+        \n2. 在对面拿龙后马上再次点击，计时器变为蓝色。（拿龙后第一波龙正常出，之后3波兵每波都会提前2.25秒，共提前6.75秒）
         \n3. 设置页面可以拖动修改提示的位置
         \n4. 如果没有显示倒计时请点击检测权限允许权限
         \n5. 退出请点击退出按钮</string>
@@ -120,4 +120,6 @@
   <string name="value_vibrate_time">5</string>
   <string name="add_title">Add GameTimer</string>
   <string name="app_desc">王者荣耀兵线计时器</string>
+  <string name="key_color_short_timer">color_short_timer</string>
+  <string name="key_color_normal_timer">color_normal_timer</string>
 </resources>

@@ -77,6 +77,7 @@ class BackService : Service() {
           }
           windowManager.addView(TimerView(this).apply {
             timerView = this
+            setPadding(20, 10, 20, 10)
           }, WindowManager.LayoutParams().apply {
             width = WindowManager.LayoutParams.WRAP_CONTENT
             height = WindowManager.LayoutParams.WRAP_CONTENT

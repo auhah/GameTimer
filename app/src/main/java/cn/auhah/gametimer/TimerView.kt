@@ -6,39 +6,68 @@ import android.graphics.Color
 import android.os.CountDownTimer
 import android.preference.PreferenceManager
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.WindowManager
 import android.widget.TextView
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.sdk25.coroutines.onClick
-import org.jetbrains.anko.sdk25.coroutines.onLongClick
 import org.jetbrains.anko.textColor
 import org.jetbrains.anko.vibrator
 import org.jetbrains.anko.windowManager
 
 class TimerView : TextView {
-  var time: Long = 0
-  var isShort: Boolean = true
+  private var nextIsShortTimer: Boolean = false
   var isEnableMove: Boolean = false
+    set(value) {
+      field = value
+      backgroundColor = if (value) {
+        Color.LTGRAY
+      } else {
+        Color.TRANSPARENT
+      }
+    }
 
   companion object {
-    const val DURATION = 33250L
-    const val DIFF_DURATION = 6750L
+    const val NORMAL_DURATION = 33250L                 // 正常兵线
+    const val SHORT_DURATION = NORMAL_DURATION - 2250L // 大龙之后的兵线-2.25s
     const val COUNT_DOWN_INTERVAL = 1000L
+    const val SHORT_TIMER_REPEAT_TIME = 3
+    const val CLICK_DURATION = 500L
   }
 
-  val timer = object : CountDownTimer(DURATION, COUNT_DOWN_INTERVAL) {
+  private val normalTimer = object : CountDownTimer(NORMAL_DURATION, COUNT_DOWN_INTERVAL) {
     override fun onTick(millisUntilFinished: Long) {
-      isShort = false
-      time = millisUntilFinished
-      showText()
+      log("normalTimerTick")
+      showText(millisUntilFinished)
     }
 
     override fun onFinish() {
-      start()
+      log("normalTimerFinish")
+      if (nextIsShortTimer)
+        startShortTimer()
+      else
+        start()
     }
   }
-  private var shortTimer: CountDownTimer? = null
+  private var shortTimer = object : CountDownTimer(SHORT_DURATION, COUNT_DOWN_INTERVAL) {
+    var shortTimerRepeatTime = 0
+    override fun onTick(millisUntilFinished: Long) {
+      log("shortTimerTick")
+      showText(millisUntilFinished)
+    }
+
+    override fun onFinish() {
+      log("shortTimerFinish")
+      shortTimerRepeatTime++
+      nextIsShortTimer = shortTimerRepeatTime < SHORT_TIMER_REPEAT_TIME
+      if (nextIsShortTimer) {
+        start()
+      } else {
+        startNormalTimer()
+      }
+    }
+  }
 
   constructor(context: Context) : super(context) {
     init()
@@ -51,38 +80,68 @@ class TimerView : TextView {
     init()
   }
 
+  private var lastClickTime = 0L
+
   private fun init() {
     initSetting()
-    textColor = Color.RED
-    backgroundColor = Color.TRANSPARENT
-    timer.start()
+    startNormalTimer()
     onClick {
-      if (isShort) {
-        shortTimer?.cancel()
-        timer.start()
-      } else {
-        timer.cancel()
-        if (time < DIFF_DURATION) {
-          time += DURATION
+      val clickTime = System.currentTimeMillis()
+      if (clickTime - lastClickTime >= CLICK_DURATION) {
+        lastClickTime = clickTime
+        /*
+          1. 正常模式点击一下变蓝，下次是短计时器
+          2. 等待短计时/短计时的时候点击回到正常模式
+         */
+        if (!nextIsShortTimer && !isShortTimerRunning) {
+          textColor = colorShortTimer
+          if (!text.endsWith("$SHORT_TIMER_REPEAT_TIME")) text = "$text 0/$SHORT_TIMER_REPEAT_TIME"
+        } else {
+          startNormalTimer()
         }
-        time -= DIFF_DURATION
-        shortTimer?.cancel()
-        shortTimer = object : CountDownTimer(time, COUNT_DOWN_INTERVAL) {
-          override fun onTick(millisUntilFinished: Long) {
-            time = millisUntilFinished
-            showText()
-          }
-
-          override fun onFinish() {
-            timer.start()
-          }
-        }.start()
+        nextIsShortTimer = !nextIsShortTimer
       }
-      isShort = !isShort
+    }
+  }
+
+  private var colorShortTimer = Color.GREEN
+    set(value) {
+      field = value
+      if (isShortTimerRunning) {
+        textColor = value
+      }
+    }
+  private var colorNormalTimer = Color.RED
+    set(value) {
+      field = value
+      if (!isShortTimerRunning) {
+        textColor = value
+      }
     }
 
-    onLongClick {
+  private var isShortTimerRunning = false
+    set(value) {
+      field = value
+      textColor = if (value)
+        colorShortTimer
+      else {
+        colorNormalTimer
+      }
     }
+
+  private fun startShortTimer() {
+    normalTimer.cancel()
+    cancelShortTimer()
+    shortTimer.start()
+    isShortTimerRunning = true
+  }
+
+  private fun startNormalTimer() {
+    cancelShortTimer()
+    normalTimer.cancel()
+    normalTimer.start()
+    textColor = colorNormalTimer
+    isShortTimerRunning = false
   }
 
   private var mStartX: Float = 0.0f
@@ -148,6 +207,14 @@ class TimerView : TextView {
           context.getString(R.string.key_vibrate_duration),
           context.getString(R.string.value_vibrate_duration)
       ).toLong()
+      colorShortTimer = getInt(
+          context.getString(R.string.key_color_short_timer),
+          context.resources.getColor(R.color.default_short_timer)
+      )
+      colorNormalTimer = getInt(
+          context.getString(R.string.key_color_normal_timer),
+          context.resources.getColor(R.color.default_normal_timer)
+      )
     }
   }
 
@@ -159,20 +226,34 @@ class TimerView : TextView {
         }
   }
 
-  private fun showText() {
-    val t = Math.round(time / 1000.00)
+  private fun showText(millisUntilFinished: Long) {
+    val t = Math.round(millisUntilFinished / 1000.00)
         .toInt()
-    text = "$t 秒"
+    text = when {
+      isShortTimerRunning -> "${t}秒 ${shortTimer.shortTimerRepeatTime + 1}/$SHORT_TIMER_REPEAT_TIME"
+      nextIsShortTimer -> "${t}秒 0/$SHORT_TIMER_REPEAT_TIME"
+      else -> "${t}秒"
+    }
     if (vibrateEnable and (t == vibrateTime)) {
       context.vibrator.vibrate(vibrateDuration)
     }
   }
 
   fun clearTimer() {
-    timer.cancel()
-    shortTimer?.cancel()
+    normalTimer.cancel()
+    cancelShortTimer()
   }
 
+  private fun cancelShortTimer() {
+    shortTimer.cancel()
+    shortTimer.shortTimerRepeatTime = 0
+  }
+
+  private fun log(msg: String) {
+    if (BuildConfig.DEBUG) {
+      Log.wtf("TimerView", msg)
+    }
+  }
   override fun onConfigurationChanged(newConfig: Configuration?) {
     super.onConfigurationChanged(newConfig)
 //    if (newConfig?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
