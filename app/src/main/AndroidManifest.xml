@@ -64,6 +64,9 @@
         android:label="@string/title_activity_settings"
         android:screenOrientation="landscape">
     </activity>
+    <meta-data
+        android:name="android.max_aspect"
+        android:value="3.0"/>
   </application>
 
 </manifest>

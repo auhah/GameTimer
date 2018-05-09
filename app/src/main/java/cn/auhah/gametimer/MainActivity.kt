@@ -10,6 +10,7 @@ import kotlinx.android.synthetic.main.activity_main.exit
 import kotlinx.android.synthetic.main.activity_main.setting
 import kotlinx.android.synthetic.main.activity_main.start
 import org.jetbrains.anko.sdk25.coroutines.onClick
+import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 
 class MainActivity : AppCompatActivity() {
@@ -31,8 +32,7 @@ class MainActivity : AppCompatActivity() {
       finish()
     }
     setting.onClick {
-      val intent = Intent(this@MainActivity, SettingsActivity::class.java)
-      startActivity(intent)
+      startActivity<SettingsActivity>()
     }
     check.onClick {
       askForPermission()

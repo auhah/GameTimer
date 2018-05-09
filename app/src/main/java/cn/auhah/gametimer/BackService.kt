@@ -15,6 +15,7 @@ import android.support.v4.app.NotificationCompat
 import android.view.Gravity
 import android.view.WindowManager
 import cn.auhah.gametimer.permissions.SettingsCompat
+import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.notificationManager
 import org.jetbrains.anko.windowManager
 
@@ -50,8 +51,8 @@ class BackService : Service() {
       context: Context,
       action: Int
     ) {
-      val intent = Intent(context, BackService::class.java).putExtra("a", action)
       with(context) {
+        val intent = intentFor<BackService>("a" to action)
         if (action == 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
           startForegroundService(intent)
         else
@@ -95,7 +96,7 @@ class BackService : Service() {
             timerView!!.applyLocation(this)
           })
 
-          val i = Intent(this, MainActivity::class.java)
+          val i = intentFor<MainActivity>()
 
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
