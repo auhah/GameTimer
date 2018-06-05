@@ -10,8 +10,8 @@ android {
     applicationId "cn.auhah.gametimer"
     minSdkVersion 19
     targetSdkVersion 27
-    versionCode 17
-    versionName "1.7"
+    versionCode 20
+    versionName "最终版"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     vectorDrawables.useSupportLibrary = true
     ndk {
@@ -62,7 +62,6 @@ dependencies {
 
   // Anko SQLite
   implementation "org.jetbrains.anko:anko-sqlite:$anko_version"
-  implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
 
 //  implementation 'com.oasisfeng.condom:library:2.2.0'
 
